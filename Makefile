@@ -3,3 +3,6 @@ up:
 
 down:
 	docker-compose down
+
+updev:
+	docker-compose up -d --build db

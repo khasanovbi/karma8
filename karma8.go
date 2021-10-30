@@ -30,7 +30,7 @@ type FileMetaStorage interface {
 }
 
 type Balancer interface {
-	GetHosts(ctx context.Context) ([]string, error)
+	GetHosts(ctx context.Context, count int) ([]string, error)
 }
 
 type FileMeta struct {

@@ -6,5 +6,5 @@ import (
 )
 
 func newBalancer(conf *BalancerConfig) karma8.Balancer {
-	return balancer.NewRoundRobinBalancer(conf.Hosts, conf.SplitCount)
+	return balancer.NewWeightedRoundRobinBalancer(conf.HostToWeight)
 }

@@ -7,8 +7,7 @@ type HTTPConfig struct {
 }
 
 type BalancerConfig struct {
-	Hosts      []string `config:"hosts" yaml:"hosts"`
-	SplitCount uint32   `config:"split_count" yaml:"split_count"`
+	HostToWeight map[string]int `config:"hosts" yaml:"hosts"`
 }
 
 type PGConfig struct {
@@ -25,4 +24,5 @@ type Config struct {
 	PG              PGConfig       `config:"pg" yaml:"pg"`
 	ShutdownTimeout time.Duration  `config:"shutdown_timeout" yaml:"shutdown_timeout"`
 	MinChunkSize    int64          `config:"min_chunk_size" yaml:"min_chunk_size"`
+	HostSplitCount  int            `config:"host_split_count" yaml:"host_split_count"`
 }

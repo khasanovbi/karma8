@@ -2,19 +2,18 @@ http:
   addr: ":8080"
 
 min_chunk_size: 1024
-
+host_split_count: 5
 shutdown_timeout: "5s"
 
 balancer:
-  split_count: 5
   hosts:
-    - host0
-    - host1
-    - host2
-    - host3
-    - host4
-    - host5
-    - host6
+    host0: 100
+    host1: 100
+    host2: 50
+    host3: 30
+    host4: 100
+    host5: 100
+    host6: 80
 
 pg:
   host: db

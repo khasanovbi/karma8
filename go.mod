@@ -16,6 +16,8 @@ require (
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
+	github.com/smallnest/weighted v0.0.0-20201102054551-85ac5c79528c // indirect
 	go.uber.org/multierr v1.6.0 // indirect
+	golang.org/x/exp v0.0.0-20200119233911-0405dc783f0a // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -50,7 +50,7 @@ func NewApplication(conf *Config, logger *zap.Logger) (*Application, error) {
 
 	fileMetaStorage := newFileMetaStorage(pg, logger)
 
-	fileService := newFileService(balancer, fileMetaStorage, conf.MinChunkSize, logger)
+	fileService := newFileService(balancer, fileMetaStorage, conf.MinChunkSize, conf.HostSplitCount, logger)
 
 	return &Application{
 		server:          newHTTPServer(&conf.HTTP, fileService, logger),

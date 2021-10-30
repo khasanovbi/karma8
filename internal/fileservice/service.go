@@ -14,6 +14,7 @@ type fileService struct {
 	storageHolder   karma8.StorageHolder
 	fileMetaStorage karma8.FileMetaStorage
 	minChunkSize    int64
+	hostSplitCount  int
 
 	logger *zap.Logger
 }
@@ -48,9 +49,11 @@ func (m *fileService) calculatePartsSize(total int64, splitCount int) []int64 {
 	return result
 }
 
-func (m *fileService) calculateFileParts(hosts []string, fileMeta *karma8.FileMeta) []*karma8.FilePart {
-	partSizes := m.calculatePartsSize(fileMeta.ContentLength, len(hosts))
-
+func (m *fileService) calculateFileParts(
+	hosts []string,
+	fileMeta *karma8.FileMeta,
+	partSizes []int64,
+) []*karma8.FilePart {
 	var fileParts []*karma8.FilePart
 	for i, partSize := range partSizes {
 		fileParts = append(fileParts, &karma8.FilePart{
@@ -63,13 +66,15 @@ func (m *fileService) calculateFileParts(hosts []string, fileMeta *karma8.FileMe
 }
 
 func (m *fileService) PutFile(ctx context.Context, file *karma8.File) error {
-	hosts, err := m.balancer.GetHosts(ctx)
+	partSizes := m.calculatePartsSize(file.Meta.ContentLength, m.hostSplitCount)
+
+	hosts, err := m.balancer.GetHosts(ctx, len(partSizes))
 	if err != nil {
 		m.logger.Error("can't get hosts from balancer", zap.Error(err))
 		return fmt.Errorf("get hosts error: %w", err)
 	}
 
-	fileParts := m.calculateFileParts(hosts, file.Meta)
+	fileParts := m.calculateFileParts(hosts, file.Meta, partSizes)
 	file.Meta.Parts = fileParts
 
 	if err := m.fileMetaStorage.PutProcessingFileMeta(ctx, file.Meta); err != nil {
@@ -181,6 +186,7 @@ func New(
 	storageHolder karma8.StorageHolder,
 	fileMetaStorage karma8.FileMetaStorage,
 	minChunkSize int64,
+	hostSplitCount int,
 	logger *zap.Logger,
 ) karma8.FileService {
 	return &fileService{
@@ -188,6 +194,7 @@ func New(
 		storageHolder:   storageHolder,
 		fileMetaStorage: fileMetaStorage,
 		minChunkSize:    minChunkSize,
+		hostSplitCount:  hostSplitCount,
 		logger:          logger,
 	}
 }
