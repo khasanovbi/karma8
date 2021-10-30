@@ -42,6 +42,7 @@ func (m *fileService) calculatePartsSize(total int64, splitCount int) []int64 {
 		result = append(result, partSize)
 
 		remain -= partSize
+		splitCount -= 1
 	}
 
 	return result

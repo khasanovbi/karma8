@@ -154,7 +154,7 @@ func (m *pgStorage) GetFileMeta(ctx context.Context, filename string) (*karma8.F
 	err := m.db.QueryRowContext(
 		ctx,
 		`
-SELECT * FROM file
+SELECT name, parts, content_length FROM file
 WHERE name = $1`,
 		filename,
 	).Scan(&name, pq.Array(&parts), &contentLength)
