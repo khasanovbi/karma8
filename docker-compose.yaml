@@ -12,5 +12,12 @@ services:
       - postgres:/var/lib/postgresql/data
       - ./docker/postgres/docker-entrypoint-initdb.d/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docker/backend/config.yaml:/app/configs/config.yaml
+
 volumes:
   postgres:

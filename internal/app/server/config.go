@@ -12,6 +12,8 @@ type BalancerConfig struct {
 }
 
 type PGConfig struct {
+	Host     string `config:"host" yaml:"host"`
+	Port     uint16 `config:"port" yaml:"port"`
 	DB       string `config:"db" yaml:"db"`
 	User     string `config:"user" yaml:"user"`
 	Password string `config:"password" yaml:"password"`

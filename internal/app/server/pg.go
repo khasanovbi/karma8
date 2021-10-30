@@ -8,7 +8,14 @@ import (
 )
 
 func newPG(conf *PGConfig, logger *zap.Logger) (*sqlx.DB, error) {
-	connStr := fmt.Sprintf("postgres://%s:%s@localhost/%s?sslmode=disable", conf.User, conf.Password, conf.DB)
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		conf.User,
+		conf.Password,
+		conf.Host,
+		conf.Port,
+		conf.DB,
+	)
 
 	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {

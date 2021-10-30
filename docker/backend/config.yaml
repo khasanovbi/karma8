@@ -17,7 +17,7 @@ balancer:
     - host6
 
 pg:
-  host: localhost
+  host: db
   port: 5432
   db: karma8
   user: karma8
