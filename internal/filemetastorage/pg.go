@@ -72,6 +72,28 @@ type pgStorage struct {
 	logger *zap.Logger
 }
 
+func (m *pgStorage) Transact(ctx context.Context, atomic func(tx *sqlx.Tx) error) (err error) {
+	tx, err := m.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if p := recover(); p != nil {
+			_ = tx.Rollback()
+			panic(p)
+		}
+		if err != nil {
+			_ = tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	err = atomic(tx)
+	return err
+}
+
 func (m *pgStorage) PutProcessingFileMeta(ctx context.Context, meta *karma8.FileMeta) error {
 	_, err := m.db.ExecContext(
 		ctx,
@@ -88,19 +110,40 @@ func (m *pgStorage) PutProcessingFileMeta(ctx context.Context, meta *karma8.File
 }
 
 func (m *pgStorage) CompleteFileMeta(ctx context.Context, filename string) error {
-	_, err := m.db.ExecContext(
-		ctx,
-		`
+	err := m.Transact(ctx, func(tx *sqlx.Tx) error {
+		_, err := tx.ExecContext(
+			ctx,
+			`
 INSERT INTO file
 SELECT * FROM processing_file
 WHERE name = $1;
 `,
-		filename,
-	)
+			filename,
+		)
+		if err != nil {
+			m.logger.Error("can't move file meta to completed", zap.Error(err))
+			return err
+		}
+
+		_, err = tx.ExecContext(
+			ctx,
+			`
+DELETE FROM processing_file
+WHERE name = $1;
+`,
+			filename,
+		)
+		if err != nil {
+			m.logger.Error("can't delete processing meta", zap.Error(err))
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
-		m.logger.Error("can't complete file meta", zap.Error(err))
 		return err
 	}
+
 	return nil
 }
 
