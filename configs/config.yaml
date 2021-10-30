@@ -1,0 +1,22 @@
+http:
+  addr: ":8080"
+
+min_chunk_size: 1024
+
+shutdown_timeout: "5s"
+
+balancer:
+  split_count: 5
+  hosts:
+    - host0
+    - host1
+    - host2
+    - host3
+    - host4
+    - host5
+    - host6
+
+pg:
+  db: karma8
+  user: karma8
+  password: karma8
